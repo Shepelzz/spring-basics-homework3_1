@@ -9,11 +9,10 @@
 
     <context:component-scan base-package="com"/>
 
-    <!--<bean id="orderService" class="com.lesson2.OrderService">-->
-        <!--&lt;!&ndash;<constructor-arg name="" value=""/>        &ndash;&gt;-->
-    <!--</bean>-->
-    <!--<bean id="orderDAO" class="com.lesson2.OrderDAO">-->
-        <!--&lt;!&ndash;<constructor-arg name="" value=""/>        &ndash;&gt;-->
-    <!--</bean>-->
+    <bean id="controller" class="com.controller.ControllerImpl"/>
+    <bean id="service" class="com.service.ServiceImpl"/>
+    <bean id="fileDAODAO" class="com.dao.FileDAOImpl"/>
+    <bean id="storageDAO" class="com.dao.StorageDAOImpl"/>
+
 
 </beans>

@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileDAOImpl extends GeneralDAO{
+public class FileDAOImpl extends GeneralDAOImpl implements FileDAO{
     private static final String SQL_SAVE = "INSERT INTO FILES VALUES(?, ?, ?, ?, ?)";
     private static final String SQL_UPDATE = "UPDATE FILES SET NAME = ?, FORMAT = ?, FILE_SIZE = ?, STORAGE_ID = ? WHERE ID = ?";
     private static final String SQL_UPDATE_BY_STORAGE_ID = "UPDATE FILES SET STORAGE_ID = ? WHERE STORAGE_ID = ?";
@@ -21,6 +21,7 @@ public class FileDAOImpl extends GeneralDAO{
     private static final String SQL_GET_ID = "SELECT FILE_ID_SEQ.NEXTVAL FROM DUAL";
     private static final String SQL_GET_FILES_BY_STORAGE_ID = "SELECT * FROM FILES WHERE STORAGE_ID = ?";
 
+    @Override
     public File put(Storage storage, File file) throws InternalServerError {
         try(Connection conn = getConnection()){
             return putFileIntoStorage(storage, file, conn);
@@ -29,6 +30,7 @@ public class FileDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public void delete(Storage storage, File file) throws InternalServerError{
         try(Connection conn = getConnection()){
             deleteFileFromStorage(storage, file, conn);
@@ -37,6 +39,7 @@ public class FileDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public void transferFiles(Storage storageFrom, Storage storageTo, long filesSize) throws InternalServerError{
         try(Connection conn = getConnection()){
             updateFilesByStorageId(storageFrom, storageTo, filesSize, conn);
@@ -45,6 +48,7 @@ public class FileDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public void transferFile(Storage storageFrom, Storage storageTo, File file) throws InternalServerError{
         try(Connection conn = getConnection()){
             updateFile(storageFrom, storageTo, file, conn);
@@ -53,6 +57,7 @@ public class FileDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public File findById(long id) throws InternalServerError{
         try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_FIND_BY_ID)){
             prpStmt.setLong(1, id);
@@ -67,6 +72,7 @@ public class FileDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public List<File> getFilesByStorageId(long id) throws InternalServerError{
         try(Connection conn = getConnection(); PreparedStatement prStmt = conn.prepareStatement(SQL_GET_FILES_BY_STORAGE_ID)){
             prStmt.setLong(1, id);

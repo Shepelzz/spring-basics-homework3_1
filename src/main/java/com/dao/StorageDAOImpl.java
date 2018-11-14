@@ -10,7 +10,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class StorageDAOImpl extends GeneralDAO{
+public class StorageDAOImpl extends GeneralDAOImpl implements StorageDAO{
     private static final String SQL_FIND_BY_ID = "SELECT * FROM STORAGE WHERE ID = ?";
     private static final String SQL_INCREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE+? WHERE ID = ?";
     private static final String SQL_DECREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE-? WHERE ID = ?";
@@ -20,7 +20,8 @@ public class StorageDAOImpl extends GeneralDAO{
             "SELECT COUNT(*) FOUND FROM FILES WHERE STORAGE_ID = ? AND EXISTS (SELECT * FROM FILES Checked WHERE Checked.STORAGE_ID = ? AND Checked.NAME = FILES.NAME AND Checked.FORMAT = FILES.FORMAT AND Checked.FILE_SIZE = FILES.FILE_SIZE)";
 
 
-    void increaseSize(long id, long size, Connection conn) throws InternalServerError {
+    @Override
+    public void increaseSize(long id, long size, Connection conn) throws InternalServerError {
         try(PreparedStatement prpStmt = conn.prepareStatement(SQL_INCREASE_SIZE)){
             prpStmt.setLong(1, size);
             prpStmt.setLong(2, id);
@@ -32,7 +33,8 @@ public class StorageDAOImpl extends GeneralDAO{
         }
     }
 
-    void decreaseSize(long id, long size, Connection conn) throws InternalServerError{
+    @Override
+    public void decreaseSize(long id, long size, Connection conn) throws InternalServerError{
         try(PreparedStatement prpStmt = conn.prepareStatement(SQL_DECREASE_SIZE)){
             prpStmt.setLong(1, size);
             prpStmt.setLong(2, id);
@@ -44,6 +46,7 @@ public class StorageDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public void checkStorageOnExistingFiles(Storage storageTo, File file) throws InternalServerError{
         try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_CHECK_IF_EXISTS_BY_FILE_ID)){
 
@@ -60,6 +63,7 @@ public class StorageDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public void checkStorageOnExistingFiles(Storage storageFrom, Storage storageTo) throws InternalServerError{
         try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_CHECK_IF_EXISTS_BY_STORAGE_ID)){
 
@@ -76,6 +80,7 @@ public class StorageDAOImpl extends GeneralDAO{
         }
     }
 
+    @Override
     public Storage findById(long id) throws SQLException {
         try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_FIND_BY_ID)){
             prpStmt.setLong(1, id);
