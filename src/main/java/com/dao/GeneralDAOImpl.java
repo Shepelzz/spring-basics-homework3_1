@@ -31,7 +31,7 @@ public abstract class GeneralDAOImpl<T extends Model> implements GeneralDAO<T>{
         } catch (HibernateException e) {
             throw new InternalServerError(getClass().getSimpleName()+"-findById: "+id+" failed. "+e.getMessage());
         } catch (NoResultException noe){
-            throw new BadRequestException("There is not File with id: "+id+". "+noe.getMessage());
+            throw new BadRequestException("There is not "+clazz.getName()+" entity with id: "+id+". "+noe.getMessage());
         }
     }
 

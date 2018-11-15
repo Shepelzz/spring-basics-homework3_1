@@ -2,7 +2,6 @@ package com.model;
 
 
 import javax.persistence.*;
-import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
