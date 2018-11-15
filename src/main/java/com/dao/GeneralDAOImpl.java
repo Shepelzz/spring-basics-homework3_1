@@ -1,31 +1,21 @@
 package com.dao;
 
 import com.exception.InternalServerError;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 
+@Repository
 public abstract class GeneralDAOImpl{
-    private static final String DB_URL = "jdbc:oracle:thin:@gromcode-lessons.ce5xbsungqgk.us-east-2.rds.amazonaws.com:1521:ORCL";
-    private static final String USER = "main";
-    private static final String PASS = "11111111";
 
-    public Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, USER, PASS);
-    }
+    private SessionFactory sessionFactory;
 
-    long getNewEntityId(String sql) throws InternalServerError, SQLException{
-        try(Connection conn = getConnection(); Statement stmt = conn.createStatement()){
-            ResultSet rs = stmt.executeQuery(sql);
-            if(rs.next())
-                return rs.getLong(1);
-            throw new InternalServerError(getClass().getName()+"-getNewEntityId. Get ID fail");
-        }catch (SQLException e){
-            throw e;
-        }
-    }
-
-    void closeConnection(Connection connection) throws SQLException{
-        if(connection != null)
-            connection.close();
+    public SessionFactory createSessionFactory(){
+        if(sessionFactory == null)
+            sessionFactory = new Configuration().configure().buildSessionFactory();
+        return sessionFactory;
     }
 }

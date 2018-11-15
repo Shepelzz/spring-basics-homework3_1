@@ -9,10 +9,11 @@
 
     <context:component-scan base-package="com"/>
 
-    <bean id="controller" class="com.controller.ControllerImpl"/>
+    <bean id="controller" class="com.controller.Controller"/>
     <bean id="service" class="com.service.ServiceImpl"/>
-    <bean id="fileDAODAO" class="com.dao.FileDAOImpl"/>
+    <bean id="fileDAO" class="com.dao.FileDAOImpl"/>
     <bean id="storageDAO" class="com.dao.StorageDAOImpl"/>
+    <bean id="application" class="com.Application"/>
 
 
 </beans>

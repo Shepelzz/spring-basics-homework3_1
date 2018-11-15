@@ -10,7 +10,8 @@ import com.model.File;
 import com.model.Storage;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class ServiceImpl implements Service{
+@org.springframework.stereotype.Service
+public class ServiceImpl implements Service {
     private FileDAO fileDAO;
     private StorageDAO storageDAO;
 
@@ -21,7 +22,7 @@ public class ServiceImpl implements Service{
     }
 
     @Override
-    public File put(Storage storage, File file) throws InternalServerError {
+    public File put(Storage storage, File file) throws InternalServerError{
         file.setStorage(storage);
         validateFile(storage, file);
 
@@ -29,14 +30,18 @@ public class ServiceImpl implements Service{
     }
 
     @Override
-    public void delete(Storage storage, File file) throws InternalServerError {
-        fileDAO.delete(storage, file);
+    public File delete(Storage storage, File file) throws InternalServerError {
+        file.setStorage(storage);
+        if(storageDAO.checkStorageOnExistingFiles(file) == 0)
+            throw new BadRequestException(getClass().getName()+"-checkStorageOnExistingFiles. There is no file id: "+file.getId()+" on storage id: "+storage.getId());
+        return fileDAO.delete(storage, file);
     }
 
     @Override
     public void transferAll(Storage storageFrom, Storage storageTo) throws InternalServerError{
         //check if exists
-        storageDAO.checkStorageOnExistingFiles(storageFrom, storageTo);
+        if(storageDAO.checkStorageOnExistingFiles(storageFrom, storageTo) > 0)
+            throw new BadRequestException(getClass().getName()+"-checkStorageOnExistingFiles. There is existing file from Storage id:"+storageFrom.getId()+" in Storage id:"+storageTo.getId());
         //check size and format
         long filesSize = 0;
         long storageSize = storageTo.getStorageSize();
@@ -53,7 +58,7 @@ public class ServiceImpl implements Service{
     }
 
     @Override
-    public void transferFile(Storage storageFrom, Storage storageTo, long id) throws InternalServerError{
+    public void transferFile(Storage storageFrom, Storage storageTo, Long id) throws InternalServerError{
         File file = fileDAO.findById(id);
         file.setStorage(storageTo);
 
@@ -64,7 +69,9 @@ public class ServiceImpl implements Service{
 
     private void validateFile(Storage storage, File file) throws InternalServerError{
         //check if exists
-        storageDAO.checkStorageOnExistingFiles(storage, file);
+        file.setStorage(storage);
+        if(storageDAO.checkStorageOnExistingFiles(file) > 0)
+            throw new BadRequestException(getClass().getName()+"-checkStorageOnExistingFiles. There is existing file: "+file.toString()+" in Storage id:"+file.getStorage().getId());
         //check size
         if(storage.getStorageSize() < file.getSize())
             throw new BadRequestException(getClass().getName()+"-checkInputFileSize. There is no enough free space in storage id:"+storage.getId()+" file id:"+file.getId());
@@ -73,9 +80,13 @@ public class ServiceImpl implements Service{
     }
 
     private void checkFileFormat(Storage storage, File file){
-        for(String format : storage.getFormatsSupported())
+        for(String format : storage.getFormatsSupported().split(","))
             if(format.equals(file.getFormat()))
                 return;
         throw new BadRequestException(getClass().getName()+"-checkInputFileFormat. File format is not accepted. storage id:"+storage.getId()+" file id:"+file.getId());
+    }
+
+    public Storage findById(Long id) throws InternalServerError{
+        return storageDAO.findById(id);
     }
 }

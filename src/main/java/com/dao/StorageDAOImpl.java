@@ -4,99 +4,90 @@ import com.exception.BadRequestException;
 import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.type.IntegerType;
+import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import javax.persistence.NoResultException;
+import javax.persistence.Query;
 
+@Repository
 public class StorageDAOImpl extends GeneralDAOImpl implements StorageDAO{
-    private static final String SQL_FIND_BY_ID = "SELECT * FROM STORAGE WHERE ID = ?";
-    private static final String SQL_INCREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE+? WHERE ID = ?";
-    private static final String SQL_DECREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE-? WHERE ID = ?";
+
+    private static final String SQL_INCREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE+ :size WHERE ID = :storageId";
+    private static final String SQL_DECREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE- :size WHERE ID = :storageId";
     private static final String SQL_CHECK_IF_EXISTS_BY_FILE_ID =
-            "SELECT COUNT(*) FOUND FROM FILES WHERE STORAGE_ID = ? AND EXISTS (SELECT * FROM FILES Checked WHERE Checked.ID = ? AND Checked.NAME = FILES.NAME AND Checked.FORMAT = FILES.FORMAT AND Checked.FILE_SIZE = FILES.FILE_SIZE)";
+            "SELECT  COUNT(*) cnt \n" +
+            "FROM    FILES \n" +
+            "WHERE   STORAGE_ID = :storageId \n" +
+            "    AND NAME = :fileName\n" +
+            "    AND FORMAT = :fileFormat\n" +
+            "    AND FILE_SIZE = :fileSize";
+
     private static final String SQL_CHECK_IF_EXISTS_BY_STORAGE_ID =
-            "SELECT COUNT(*) FOUND FROM FILES WHERE STORAGE_ID = ? AND EXISTS (SELECT * FROM FILES Checked WHERE Checked.STORAGE_ID = ? AND Checked.NAME = FILES.NAME AND Checked.FORMAT = FILES.FORMAT AND Checked.FILE_SIZE = FILES.FILE_SIZE)";
+            "SELECT  COUNT(*) cnt \n" +
+            "FROM    FILES \n" +
+            "WHERE   STORAGE_ID = :storageToId \n" +
+            "    AND EXISTS (\n" +
+            "        SELECT  * \n" +
+            "        FROM    FILES Checked  \n" +
+            "        WHERE   Checked.STORAGE_ID = :storageFromId \n" +
+            "            AND Checked.NAME = FILES.NAME \n" +
+            "            AND Checked.FORMAT = FILES.FORMAT \n" +
+            "            AND Checked.FILE_SIZE = FILES.FILE_SIZE\n" +
+            ")";
 
 
     @Override
-    public void increaseSize(long id, long size, Connection conn) throws InternalServerError {
-        try(PreparedStatement prpStmt = conn.prepareStatement(SQL_INCREASE_SIZE)){
-            prpStmt.setLong(1, size);
-            prpStmt.setLong(2, id);
-
-            if(prpStmt.executeUpdate() == 0)
-                throw new InternalServerError(getClass().getName()+"-increaseSize. Storage size with id "+id+" was not updated");
-        }catch (SQLException e){
-            throw new InternalServerError(getClass().getName()+"-increaseSize. Storage size with id "+id+" was not updated. "+e.getMessage());
+    public void changeSize(Long id, Long size, Session session, sizeActions act) throws InternalServerError {
+        try{
+            Query query = session.createSQLQuery(act == sizeActions.INCREASE ? SQL_INCREASE_SIZE : SQL_DECREASE_SIZE);
+                query.setParameter("size", size);
+                query.setParameter("storageId", id);
+            if(query.executeUpdate() == 0)
+                throw new InternalServerError(getClass().getName()+"-"+act.toString()+". Storage size with id "+id+" was not updated");
+        } catch (HibernateException e){
+            throw new InternalServerError(getClass().getName()+"-"+act.toString()+". Storage size with id "+id+" was not updated. "+e.getMessage());
         }
     }
 
     @Override
-    public void decreaseSize(long id, long size, Connection conn) throws InternalServerError{
-        try(PreparedStatement prpStmt = conn.prepareStatement(SQL_DECREASE_SIZE)){
-            prpStmt.setLong(1, size);
-            prpStmt.setLong(2, id);
-
-            if(prpStmt.executeUpdate() == 0)
-                throw new InternalServerError(getClass().getName()+"-decreaseSize. Storage size with id "+id+" was not updated");
-        }catch (SQLException e){
-            throw new InternalServerError(getClass().getName()+"-decreaseSize. Storage size with id "+id+" was not updated. "+e.getMessage());
+    public int checkStorageOnExistingFiles(File file) throws InternalServerError{
+        try (Session session = createSessionFactory().openSession()) {
+            return (Integer) session.createSQLQuery(SQL_CHECK_IF_EXISTS_BY_FILE_ID)
+                    .setParameter("storageId", file.getStorage().getId())
+                    .setParameter("fileName", file.getName())
+                    .setParameter("fileFormat", file.getFormat())
+                    .setParameter("fileSize", file.getSize())
+                    .addScalar("cnt", IntegerType.INSTANCE)
+                    .uniqueResult();
+        } catch (HibernateException e) {
+            throw new InternalServerError(getClass().getName() + "-checkStorageOnExistingFiles. " + e.getMessage());
         }
     }
 
     @Override
-    public void checkStorageOnExistingFiles(Storage storageTo, File file) throws InternalServerError{
-        try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_CHECK_IF_EXISTS_BY_FILE_ID)){
-
-            prpStmt.setLong(1, storageTo.getId());
-            prpStmt.setLong(2, file.getId());
-
-            ResultSet rs = prpStmt.executeQuery();
-            rs.next();
-            if(rs.getInt(1) > 0)
-                throw new BadRequestException(getClass().getName()+"-checkStorageOnExistingFiles. There is existing file id:"+file.getId()+" in Storage id:"+storageTo.getId());
-
-        }catch (SQLException e){
+    public int checkStorageOnExistingFiles(Storage storageFrom, Storage storageTo) throws InternalServerError{
+        try (Session session = createSessionFactory().openSession()) {
+            return (Integer) session.createSQLQuery(SQL_CHECK_IF_EXISTS_BY_STORAGE_ID)
+                    .setParameter("storageToId", storageTo.getId())
+                    .setParameter("storageFromId", storageFrom.getId())
+                    .addScalar("cnt", IntegerType.INSTANCE)
+                    .uniqueResult();
+        } catch (HibernateException e) {
             throw new InternalServerError(getClass().getName()+"-checkStorageOnExistingFiles. "+e.getMessage());
         }
     }
 
     @Override
-    public void checkStorageOnExistingFiles(Storage storageFrom, Storage storageTo) throws InternalServerError{
-        try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_CHECK_IF_EXISTS_BY_STORAGE_ID)){
-
-            prpStmt.setLong(1, storageTo.getId());
-            prpStmt.setLong(2, storageFrom.getId());
-
-            ResultSet rs = prpStmt.executeQuery();
-            rs.next();
-            if(rs.getInt(1) > 0)
-                throw new BadRequestException(getClass().getName()+"-checkStorageOnExistingFiles. There is existing file from Storage id:"+storageFrom.getId()+" in Storage id:"+storageTo.getId());
-
-        }catch (SQLException e){
-            throw new InternalServerError(getClass().getName()+"-checkStorageOnExistingFiles. "+e.getMessage());
-        }
-    }
-
-    @Override
-    public Storage findById(long id) throws SQLException {
-        try(Connection conn = getConnection(); PreparedStatement prpStmt = conn.prepareStatement(SQL_FIND_BY_ID)){
-            prpStmt.setLong(1, id);
-
-            ResultSet rs = prpStmt.executeQuery();
-            if(rs.next()) {
-                Storage storage = new Storage();
-                    storage.setId(rs.getLong(1));
-                    storage.setFormatsSupported(rs.getString(2).split(","));
-                    storage.setStorageCountry(rs.getString(3));
-                    storage.setStorageSize(rs.getLong(4));
-                return storage;
-            }
-            throw new BadRequestException(getClass().getName()+"-findById. There is no Storage with id "+id);
-        }catch (SQLException e){
-            throw e;
+    public Storage findById(Long id) throws InternalServerError {
+        try (Session session = createSessionFactory().openSession()) {
+            return session.get(Storage.class, id);
+        } catch (HibernateException e) {
+            throw new InternalServerError(getClass().getSimpleName()+"-findById: "+id+" failed. "+e.getMessage());
+        } catch (NoResultException noe){
+            throw new BadRequestException("There is no Storage with id: "+id+". "+noe.getMessage());
         }
     }
 }

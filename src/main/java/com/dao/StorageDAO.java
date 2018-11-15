@@ -3,16 +3,16 @@ package com.dao;
 import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
+import org.hibernate.Session;
+import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
+@Repository
 public interface StorageDAO {
+    enum sizeActions {INCREASE, DECREASE}
 
-    void increaseSize(long id, long size, Connection conn) throws InternalServerError;
-    void decreaseSize(long id, long size, Connection conn) throws InternalServerError;
-    void checkStorageOnExistingFiles(Storage storageTo, File file) throws InternalServerError;
-    void checkStorageOnExistingFiles(Storage storageFrom, Storage storageTo) throws InternalServerError;
-    Storage findById(long id) throws SQLException;
+    void changeSize(Long id, Long size, Session session, sizeActions act) throws InternalServerError;
+    int checkStorageOnExistingFiles(File file) throws InternalServerError;
+    int checkStorageOnExistingFiles(Storage storageFrom, Storage storageTo) throws InternalServerError;
+    Storage findById(Long id) throws InternalServerError;
 
 }

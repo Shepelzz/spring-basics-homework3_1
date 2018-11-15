@@ -2,29 +2,30 @@ package com.model;
 
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "FILES")
-public class File {
+public class File implements Serializable {
     @Id
     @SequenceGenerator(name = "FILE_SEQ", sequenceName = "FILE_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FILE_SEQ")
     @Column(name = "ID")
-    private long id;
+    private Long id;
     @Column(name = "NAME")
     private String name;
     @Column(name = "FORMAT")
     private String format;
     @Column(name = "FILE_SIZE")
-    private long size;
+    private Long size;
     @ManyToOne
     @JoinColumn(name="STORAGE_ID", nullable = false)
     private Storage storage;
 
     public File() {}
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -36,7 +37,7 @@ public class File {
         return format;
     }
 
-    public long getSize() {
+    public Long getSize() {
         return size;
     }
 
@@ -71,12 +72,24 @@ public class File {
         File file = (File) o;
         return Objects.equals(name, file.name) &&
                 Objects.equals(format, file.format) &&
+                Objects.equals(size, file.size) &&
                 Objects.equals(storage, file.storage);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(name, format, storage);
+        return Objects.hash(name, format, size, storage);
+    }
+
+    @Override
+    public String toString() {
+        return "File{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", format='" + format + '\'' +
+                ", size=" + size +
+                ", storage=" + (storage == null ? "" : storage.getId()) +
+                '}';
     }
 }

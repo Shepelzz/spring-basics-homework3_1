@@ -1,30 +1,32 @@
 package com.model;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
 @Table(name = "STORAGE")
-public class Storage {
+public class Storage implements Serializable {
     @Id
     @SequenceGenerator(name = "STORAGE_SEQ", sequenceName = "STORAGE_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STORAGE_SEQ")
     @Column(name = "ID")
-    private long id;
+    private Long id;
     @Column(name = "FORMATS_SUPPORTED")
-    private String[] formatsSupported;
+    private String formatsSupported;
     @Column(name = "STORAGE_COUNTRY")
     private String storageCountry;
     @Column(name = "STORAGE_SIZE")
-    private long storageSize;
+    private Long storageSize;
 
     public Storage(){}
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public String[] getFormatsSupported() {
+    public String getFormatsSupported() {
         return formatsSupported;
     }
 
@@ -32,7 +34,7 @@ public class Storage {
         return storageCountry;
     }
 
-    public long getStorageSize() {
+    public Long getStorageSize() {
         return storageSize;
     }
 
@@ -40,7 +42,7 @@ public class Storage {
         this.id = id;
     }
 
-    public void setFormatsSupported(String[] formatsSupported) {
+    public void setFormatsSupported(String formatsSupported) {
         this.formatsSupported = formatsSupported;
     }
 
@@ -57,7 +59,7 @@ public class Storage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Storage storage = (Storage) o;
-        return id == storage.id;
+        return Objects.equals(id, storage.id);
     }
 
     @Override
