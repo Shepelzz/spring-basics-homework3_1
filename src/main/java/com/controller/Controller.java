@@ -36,8 +36,4 @@ public class Controller {
         service.transferFile(storageFrom, storageTo, id);
         System.out.println("transferFile done");
     }
-
-    public Storage findById(Long id) throws InternalServerError{
-        return service.findById(id);
-    }
 }

@@ -43,23 +43,23 @@ public class Application {
         SpringApplication.run(Application.class, args);
 
         File file = new File();
-        file.setName("2Rrrrrrrr");
+        file.setName("3Rrrrrrrr");
         file.setFormat("txt");
-        file.setSize(10);
+        file.setSize(20);
 
 //        File exFile = new File();
 //        exFile.setName("7");
 //        exFile.setFormat("txt");
 //        exFile.setSize(2);
 
-        Storage storage1 = sController.findById(1L); //944
-        Storage storage2 = sController.findById(2L); //774
+        Storage storage1 = sStorageDAO.findById(1L); //944
+        Storage storage2 = sStorageDAO.findById(2L); //774
         File f85 = sFileDAO.findById(85L);
         File fd = sFileDAO.findById(72L);
 
 //        sController.put(storage1, file);
-        sController.delete(storage2, fd);
-//        sController.transferFile(storage1, storage2, 85L);
+//        sController.delete(storage2, fd);
+//        sController.transferFile(storage1, storage2, 86L);
 //        sController.transferAll(storage2, storage1);
 
 

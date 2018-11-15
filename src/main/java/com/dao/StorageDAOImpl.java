@@ -9,11 +9,10 @@ import org.hibernate.Session;
 import org.hibernate.type.IntegerType;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 @Repository
-public class StorageDAOImpl extends GeneralDAOImpl implements StorageDAO{
+public class StorageDAOImpl extends GeneralDAOImpl<Storage> implements StorageDAO{
 
     private static final String SQL_INCREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE+ :size WHERE ID = :storageId";
     private static final String SQL_DECREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE- :size WHERE ID = :storageId";
@@ -38,6 +37,9 @@ public class StorageDAOImpl extends GeneralDAOImpl implements StorageDAO{
             "            AND Checked.FILE_SIZE = FILES.FILE_SIZE\n" +
             ")";
 
+    public StorageDAOImpl() {
+        setClazz(Storage.class);
+    }
 
     @Override
     public void changeSize(Long id, Long size, Session session, sizeActions act) throws InternalServerError {
@@ -77,17 +79,6 @@ public class StorageDAOImpl extends GeneralDAOImpl implements StorageDAO{
                     .uniqueResult();
         } catch (HibernateException e) {
             throw new InternalServerError(getClass().getName()+"-checkStorageOnExistingFiles. "+e.getMessage());
-        }
-    }
-
-    @Override
-    public Storage findById(Long id) throws InternalServerError {
-        try (Session session = createSessionFactory().openSession()) {
-            return session.get(Storage.class, id);
-        } catch (HibernateException e) {
-            throw new InternalServerError(getClass().getSimpleName()+"-findById: "+id+" failed. "+e.getMessage());
-        } catch (NoResultException noe){
-            throw new BadRequestException("There is no Storage with id: "+id+". "+noe.getMessage());
         }
     }
 }

@@ -6,6 +6,7 @@ import com.model.File;
 import com.model.Storage;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -17,7 +18,7 @@ import java.util.List;
 import static com.dao.StorageDAO.sizeActions.*;
 
 @Repository
-public class FileDAOImpl extends GeneralDAOImpl implements FileDAO{
+public class FileDAOImpl extends GeneralDAOImpl<File> implements FileDAO{
 
     private static final String SQL_UPDATE_BY_STORAGE_ID = "UPDATE FILES SET STORAGE_ID = :storageTo WHERE STORAGE_ID = :storageFrom";
     private static final String SQL_GET_FILES_BY_STORAGE_ID = "SELECT * FROM FILES WHERE STORAGE_ID = :storageId";
@@ -27,6 +28,7 @@ public class FileDAOImpl extends GeneralDAOImpl implements FileDAO{
     @Autowired
     public FileDAOImpl(StorageDAOImpl storageDAO) {
         this.storageDAO = storageDAO;
+        setClazz(File.class);
     }
 
     @Override
@@ -107,17 +109,6 @@ public class FileDAOImpl extends GeneralDAOImpl implements FileDAO{
             if (transaction != null)
                 transaction.rollback();
             throw new InternalServerError(getClass().getName()+"-transferFile. Transfer File id:"+file.getId()+" from storage id:"+storageFrom.getId()+" to id:"+storageTo.getId()+" failed.");
-        }
-    }
-
-    @Override
-    public File findById(Long id) throws InternalServerError{
-        try (Session session = createSessionFactory().openSession()) {
-            return session.get(File.class, id);
-        } catch (HibernateException e) {
-            throw new InternalServerError(getClass().getSimpleName()+"-findById: "+id+" failed. "+e.getMessage());
-        } catch (NoResultException noe){
-            throw new BadRequestException("There is not File with id: "+id+". "+noe.getMessage());
         }
     }
 

@@ -85,8 +85,4 @@ public class ServiceImpl implements Service {
                 return;
         throw new BadRequestException(getClass().getName()+"-checkInputFileFormat. File format is not accepted. storage id:"+storage.getId()+" file id:"+file.getId());
     }
-
-    public Storage findById(Long id) throws InternalServerError{
-        return storageDAO.findById(id);
-    }
 }

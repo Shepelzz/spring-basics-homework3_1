@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "FILES")
-public class File implements Serializable {
+public class File extends Model {
     @Id
     @SequenceGenerator(name = "FILE_SEQ", sequenceName = "FILE_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "FILE_SEQ")
@@ -25,6 +25,7 @@ public class File implements Serializable {
 
     public File() {}
 
+    @Override
     public Long getId() {
         return id;
     }

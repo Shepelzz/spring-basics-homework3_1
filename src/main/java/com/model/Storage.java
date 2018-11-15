@@ -7,7 +7,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "STORAGE")
-public class Storage implements Serializable {
+public class Storage extends Model {
     @Id
     @SequenceGenerator(name = "STORAGE_SEQ", sequenceName = "STORAGE_ID_SEQ", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "STORAGE_SEQ")
@@ -22,6 +22,7 @@ public class Storage implements Serializable {
 
     public Storage(){}
 
+    @Override
     public Long getId() {
         return id;
     }

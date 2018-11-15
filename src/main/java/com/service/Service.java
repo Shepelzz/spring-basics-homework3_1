@@ -10,6 +10,5 @@ public interface Service {
     File delete(Storage storage, File file) throws InternalServerError;
     void transferAll(Storage storageFrom, Storage storageTo) throws InternalServerError;
     void transferFile(Storage storageFrom, Storage storageTo, Long id) throws InternalServerError;
-    public Storage findById(Long id) throws InternalServerError;
 
 }
