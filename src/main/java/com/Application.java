@@ -5,15 +5,10 @@ import com.dao.FileDAO;
 import com.dao.StorageDAO;
 import com.model.File;
 import com.model.Storage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.stereotype.Component;
-import sun.plugin.com.BeanClass;
-
 import javax.annotation.PostConstruct;
 
-@Component
 @SpringBootApplication
 public class Application {
 
@@ -25,7 +20,6 @@ public class Application {
     private static FileDAO sFileDAO;
     private FileDAO fileDAO;
 
-    @Autowired
     public Application(Controller controller, StorageDAO storageDAO, FileDAO fileDAO) {
         this.controller = controller;
         this.storageDAO = storageDAO;
@@ -43,9 +37,9 @@ public class Application {
         SpringApplication.run(Application.class, args);
 
         File file = new File();
-        file.setName("4Rrrrrrrr");
+        file.setName("9Rrrrrrrr");
         file.setFormat("txt");
-        file.setSize(20);
+        file.setSize(17);
 
 //        File exFile = new File();
 //        exFile.setName("7");

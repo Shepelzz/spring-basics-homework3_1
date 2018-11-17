@@ -1,22 +1,17 @@
 package com.service;
 
 import com.dao.FileDAO;
-import com.dao.FileDAOImpl;
 import com.dao.StorageDAO;
-import com.dao.StorageDAOImpl;
 import com.exception.BadRequestException;
 import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@org.springframework.stereotype.Service
 public class ServiceImpl implements Service {
     private FileDAO fileDAO;
     private StorageDAO storageDAO;
 
-    @Autowired
-    public ServiceImpl(FileDAOImpl fileDAO, StorageDAOImpl storageDAO) {
+    public ServiceImpl(FileDAO fileDAO, StorageDAO storageDAO) {
         this.fileDAO = fileDAO;
         this.storageDAO = storageDAO;
     }

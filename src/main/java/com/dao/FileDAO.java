@@ -3,11 +3,9 @@ package com.dao;
 import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-@Repository
 public interface FileDAO extends GeneralDAO<File>{
 
     File put(Storage storage, File file) throws InternalServerError;

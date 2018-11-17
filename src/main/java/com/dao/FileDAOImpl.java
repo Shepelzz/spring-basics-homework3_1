@@ -1,23 +1,16 @@
 package com.dao;
 
-import com.exception.BadRequestException;
 import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import java.util.List;
 
 import static com.dao.StorageDAO.sizeActions.*;
 
-@Repository
 public class FileDAOImpl extends GeneralDAOImpl<File> implements FileDAO{
 
     private static final String SQL_UPDATE_BY_STORAGE_ID = "UPDATE FILES SET STORAGE_ID = :storageTo WHERE STORAGE_ID = :storageFrom";
@@ -25,8 +18,7 @@ public class FileDAOImpl extends GeneralDAOImpl<File> implements FileDAO{
 
     private StorageDAO storageDAO;
 
-    @Autowired
-    public FileDAOImpl(StorageDAOImpl storageDAO) {
+    public FileDAOImpl(StorageDAO storageDAO) {
         this.storageDAO = storageDAO;
         setClazz(File.class);
     }

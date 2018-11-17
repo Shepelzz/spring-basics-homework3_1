@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.Query;
 
-@Repository
 public class StorageDAOImpl extends GeneralDAOImpl<Storage> implements StorageDAO{
 
     private static final String SQL_INCREASE_SIZE = "UPDATE STORAGE SET STORAGE_SIZE = STORAGE_SIZE+ :size WHERE ID = :storageId";

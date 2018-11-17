@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.NoResultException;
 import java.sql.*;
 
-@Repository
 public abstract class GeneralDAOImpl<T extends Model> implements GeneralDAO<T>{
 
     private Class<T> clazz;

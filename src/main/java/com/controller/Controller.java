@@ -4,16 +4,11 @@ import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
 import com.service.Service;
-import com.service.ServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 
-
-@org.springframework.stereotype.Controller
 public class Controller {
     private Service service;
 
-    @Autowired
-    public Controller(ServiceImpl service) {
+    public Controller(Service service) {
         this.service = service;
     }
 

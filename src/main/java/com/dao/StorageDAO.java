@@ -4,9 +4,7 @@ import com.exception.InternalServerError;
 import com.model.File;
 import com.model.Storage;
 import org.hibernate.Session;
-import org.springframework.stereotype.Repository;
 
-@Repository
 public interface StorageDAO extends GeneralDAO<Storage>{
     enum sizeActions {INCREASE, DECREASE}
 
